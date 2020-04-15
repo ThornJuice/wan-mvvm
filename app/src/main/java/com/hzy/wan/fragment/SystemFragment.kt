@@ -16,6 +16,7 @@ import com.hzy.baselib.base.jump
 import com.hzy.baselib.listener.RetryClickListener
 import com.hzy.wan.R
 import com.hzy.wan.activity.SysActivity
+import com.hzy.wan.activity.SysActivity2
 import com.hzy.wan.bean.SystemBean
 import com.hzy.wan.viewmodel.SystemViewModel
 import kotlinx.android.synthetic.main.fragment_system.*
@@ -56,7 +57,8 @@ class SystemFragment : BaseFragment() {
             val bundle = Bundle()
             bundle.putString("title", adapter?.getItem(position)?.name)
             bundle.putSerializable("child", adapter?.getItem(position)?.children as Serializable)
-            jump(SysActivity::class.java, bundle)
+           // jump(SysActivity::class.java, bundle)
+            jump(SysActivity2::class.java, bundle)
 
         }
     }

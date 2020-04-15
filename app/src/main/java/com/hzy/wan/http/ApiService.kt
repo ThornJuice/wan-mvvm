@@ -2,6 +2,8 @@ package com.hzy.wan.http
 
 
 import com.hzy.wan.bean.*
+import okhttp3.ResponseBody
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -18,6 +20,10 @@ interface ApiService {
     //首页banner
     @GET("/banner/json")
     suspend fun getHomeBanner(): BannerBean
+
+    //首页banner
+    @GET("/banner/json")
+    suspend fun getHomeBanner2(): ResponseBody
 
     //公众号列表
     @GET("/wxarticle/chapters/json")

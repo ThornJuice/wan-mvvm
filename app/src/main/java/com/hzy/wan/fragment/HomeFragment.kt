@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.alibaba.fastjson.JSONObject
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.hzy.baselib.base.*
@@ -108,7 +109,10 @@ class HomeFragment : BaseFragment() {
             }
         })
         mViewModel.bannerLd.observe(this, Observer {
-            bannerViewPager?.create(it.data)
+            val bannerBean = JSONObject.parseObject(it.string(),BannerBean::class.java)
+            if(bannerBean.errorCode==0){
+                bannerViewPager?.create(bannerBean.data)
+            }
         })
     }
 

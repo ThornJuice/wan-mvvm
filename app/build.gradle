@@ -67,4 +67,7 @@ dependencies {
     implementation 'com.github.zhpanvip:BannerViewPager:2.6.5'
     //ByRecyclerView
     implementation 'com.github.youlookwhat:ByRecyclerView:1.0.15'
+    //viewpager2
+    //implementation "androidx.viewpager2:viewpager2:1.0.0-alpha02"
+    implementation "com.google.android.material:material:1.2.0-alpha02"//material库包含viewpager2
 }
