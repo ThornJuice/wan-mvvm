@@ -50,7 +50,7 @@ public class RetrofitManager {
                     //A.e("----------"+BaseApp.getApp().getCacheDir());
                     //File file = new File(BaseApp.getApp().getCacheDir().getAbsolutePath(), "HttpCache");
                     //Cache cache = new Cache(file, 1024 * 1024 * 10);
-                    loggingInterceptor = new HttpLoggingInterceptor("request");
+                    loggingInterceptor = new HttpLoggingInterceptor("response");
                     loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);        //log打印级别，决定了log显示的详细程度
                     loggingInterceptor.setColorLevel(Level.WARNING);
                     mOkHttpClient = new OkHttpClient.Builder()

@@ -1,52 +1,83 @@
 package com.hzy.wan.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.hzy.baselib.util.LogUtils
+import com.alibaba.fastjson.JSONObject
+import com.hzy.wan.base.BaseViewModel
+import com.hzy.wan.bean.BannerBean
 import com.hzy.wan.bean.HomeArticleBean
 import com.hzy.wan.http.RetrofitManager
-import com.hzy.wan.http.subscribe
-import kotlinx.coroutines.*
-import okhttp3.ResponseBody
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class HomeViewModel : ViewModel() {
-    private val viewModelJob = SupervisorJob()
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-    var articleLd = MutableLiveData<HomeArticleBean>()
-    var bannerLd = MutableLiveData<ResponseBody>()
+class HomeViewModel : BaseViewModel() {
+    var bannerLd = MutableLiveData<UiModel<BannerBean>>()
+    var articleLd = MutableLiveData<UiModel<HomeArticleBean>>()
     fun getData(page: Int) {
-        coroutineScope.launch {
+        mCoroutineScope.launch {
             try {
-                val data = withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     RetrofitManager.getInstance().create().getHomeArticle(page)
                 }
-                articleLd.value = data
-
+                if (result.errorCode == 0) {
+                    emitArticleModel(showSuccess = result, isRefresh = false)
+                } else {
+                    emitArticleModel(showError = result.errorMsg, isRefresh = false)
+                }
 
             } catch (e: Exception) {
-                LogUtils.e("HomeViewModel","error"+e.message)
+                emitArticleModel(showError = errorHandle(e), isRefresh = false)
             }
         }
     }
 
     fun getBanner() {
-        coroutineScope.launch {
+        mCoroutineScope.launch {
             try {
                 val data = withContext(Dispatchers.IO) {
                     RetrofitManager.getInstance().create().getHomeBanner2()
                 }
-                bannerLd.value = data
+                val result = JSONObject.parseObject(data.string(), BannerBean::class.java)
+                if (result.errorCode == 0) {
+                    emitBannerModel(showSuccess = result, isRefresh = false)
+                }
 
             } catch (e: Exception) {
-                LogUtils.e("HomeViewModel","error")
+                emitBannerModel(showError = errorHandle(e), isRefresh = false)
             }
         }
 
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        coroutineScope.cancel()
+
+    private fun emitArticleModel(
+            showLoading: Boolean = false,
+            showError: String? = null,
+            showSuccess: HomeArticleBean? = null,
+            showEnd: Boolean = false,
+            isRefresh: Boolean = false
+    ) {
+
+        articleLd.value = UiModel(showLoading, showError, showSuccess, showEnd, isRefresh)
     }
+
+    private fun emitBannerModel(
+            showLoading: Boolean = false,
+            showError: String? = null,
+            showSuccess: BannerBean? = null,
+            showEnd: Boolean = false,
+            isRefresh: Boolean = false
+    ) {
+        bannerLd.value = UiModel(showLoading, showError, showSuccess, showEnd, isRefresh)
+    }
+
 }
+
+
+
+
+
+
+
+
 

@@ -32,10 +32,10 @@ import kotlinx.android.synthetic.main.fragment_home.*
  *
  */
 class HomeFragment : BaseFragment() {
-    private var  bannerViewPager: BannerViewPager<BannerBean.DataBean, BannerViewHolder>?=null
+    private var bannerViewPager: BannerViewPager<BannerBean.DataBean, BannerViewHolder>? = null
     lateinit var mViewModel: HomeViewModel
-    lateinit var adapter: MyAdapter
-    var bannerView:View?=null
+    private val adapter: MyAdapter by lazy { MyAdapter(null) }
+    var bannerView: View? = null
     var mList = ArrayList<HomeArticleBean.DataBean.DatasBean>()
     var page = 1
     override fun init() {
@@ -43,6 +43,8 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun getLayoutId(): Int {
+
+
         return R.layout.fragment_home
     }
 
@@ -55,7 +57,6 @@ class HomeFragment : BaseFragment() {
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(mContext!!, R.color.theme))
         mViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        adapter = MyAdapter(null)
         recyclerView.adapter = adapter
         adapter?.setEnableLoadMore(true)
         adapter?.setOnLoadMoreListener({
@@ -78,44 +79,49 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun initData() {
-        //showLoading()
         mLoadHolder?.showLoading()
-        mViewModel.getData(page)
-        mViewModel.getBanner()
-        mViewModel.articleLd.observe(this, Observer {
-            swipeRefreshLayout.isRefreshing = false
-           // dismissLoading()
-            mLoadHolder?.showLoadSuccess()
-            if (page == 1) {
-                mList.clear()
-                if (it.data.datas.size > 0) {
-                    mList.addAll(it.data.datas)
-                    adapter?.setNewData(mList)
-                    page++
-                    adapter?.loadMoreComplete()
-                } else {
-                    adapter?.setNewData(null)
-                    adapter?.loadMoreEnd()
-                }
-            } else {
-                if (it.data.datas.size > 0) {
-                    mList.addAll(it.data.datas)
-                    adapter?.setNewData(mList)
-                    adapter?.loadMoreComplete()
-                    page++
-                } else {
-                    adapter?.loadMoreEnd()
-                }
-            }
-        })
-        mViewModel.bannerLd.observe(this, Observer {
-            val bannerBean = JSONObject.parseObject(it.string(),BannerBean::class.java)
-            if(bannerBean.errorCode==0){
-                bannerViewPager?.create(bannerBean.data)
-            }
-        })
-    }
+        mViewModel.apply {
+            this.getData(page)
+            this.getBanner()
+            this.articleLd.observe(viewLifecycleOwner, Observer {
+                swipeRefreshLayout.isRefreshing = false
+                mLoadHolder?.showLoadSuccess()
+                if (page == 1) {
+                    it.showSuccess?.apply {
+                        if (data.datas.size > 0) {
+                            adapter.setNewData(data.datas)
+                            page++
+                        } else {
+                            adapter.setNewData(null)
+                            adapter.loadMoreEnd()
+                        }
+                    }
 
+                } else {
+                    it.showSuccess?.apply {
+                        if (data.datas.size > 0) {
+                            adapter.addData(data.datas)
+                            adapter.loadMoreComplete()
+                            page++
+                        } else {
+                            adapter.loadMoreEnd()
+                        }
+                    }
+                }
+                it.showError?.run {
+                    showToast(this)
+                }
+            })
+
+            this.bannerLd.observe(viewLifecycleOwner, Observer {
+                it.showSuccess?.apply {
+                    if(this is BannerBean) {
+                        bannerViewPager?.create(data)
+                    }
+                }
+            })
+        }
+    }
 
     class MyAdapter(var list: List<HomeArticleBean.DataBean.DatasBean>?) :
             BaseQuickAdapter<HomeArticleBean.DataBean.DatasBean, BaseViewHolder>(R.layout.item_home_article, list) {
@@ -131,8 +137,9 @@ class HomeFragment : BaseFragment() {
             helper?.setText(R.id.tv_date, item?.niceShareDate)
         }
     }
-    private fun initBanner(){
-        bannerView = layoutInflater.inflate(R.layout.layout_home_banner,null)
+
+    private fun initBanner() {
+        bannerView = layoutInflater.inflate(R.layout.layout_home_banner, null)
         bannerViewPager = bannerView?.findViewById(R.id.bannerViewPager)
         bannerViewPager?.run {
             setAutoPlay(true)
@@ -141,7 +148,7 @@ class HomeFragment : BaseFragment() {
                     .setIndicatorStyle(IndicatorStyle.ROUND_RECT)
                     .setInterval(5000)
                     .setScrollDuration(1200)
-                    .setIndicatorColor(ContextCompat.getColor(mContext!!,R.color.white7f),ContextCompat.getColor(mContext!!,R.color.white))
+                    .setIndicatorColor(ContextCompat.getColor(mContext!!, R.color.white7f), ContextCompat.getColor(mContext!!, R.color.white))
                     .setHolderCreator { BannerViewHolder() }
                     .setOnPageChangeListener(object : OnPageChangeListenerAdapter() {
                         override fun onPageSelected(position: Int) {
