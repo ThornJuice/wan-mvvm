@@ -68,4 +68,5 @@ open class BaseViewModel : ViewModel() {
         super.onCleared()
         mCoroutineScope.cancel()
     }
+
 }

@@ -8,12 +8,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.alibaba.fastjson.JSONObject
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
-import com.hzy.baselib.base.*
+import com.hzy.baselib.base.BaseFragment
+import com.hzy.baselib.base.initLoadDialog
+import com.hzy.baselib.base.jump
+import com.hzy.baselib.base.showToast
 import com.hzy.baselib.listener.RetryClickListener
-import com.hzy.wan.*
+import com.hzy.wan.R
 import com.hzy.wan.activity.AgentWebView
 import com.hzy.wan.adapter.BannerViewHolder
 import com.hzy.wan.bean.BannerBean
@@ -115,7 +117,7 @@ class HomeFragment : BaseFragment() {
 
             this.bannerLd.observe(viewLifecycleOwner, Observer {
                 it.showSuccess?.apply {
-                    if(this is BannerBean) {
+                    if (this is BannerBean) {
                         bannerViewPager?.create(data)
                     }
                 }
