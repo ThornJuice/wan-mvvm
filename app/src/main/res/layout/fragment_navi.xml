@@ -17,25 +17,32 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <q.rorbin.verticaltablayout.VerticalTabLayout
-            android:id="@+id/tabLayout"
+<!--        <q.rorbin.verticaltablayout.VerticalTabLayout-->
+<!--            android:id="@+id/tabLayout"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_weight="1"-->
+<!--            android:padding="4dp"-->
+<!--            app:indicator_color="@color/colorAccent"-->
+<!--            app:indicator_corners="50dp"-->
+<!--            app:indicator_gravity="fill"-->
+
+<!--            app:tab_height="32dp"-->
+<!--            app:tab_margin="8dp"-->
+<!--            app:tab_mode="scrollable" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewLeft"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:padding="4dp"
-            app:indicator_color="@color/colorAccent"
-            app:indicator_corners="50dp"
-            app:indicator_gravity="fill"
-
-            app:tab_height="32dp"
-            app:tab_margin="8dp"
-            app:tab_mode="scrollable" />
-
+            android:layout_weight="2"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:overScrollMode="never" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="3"
+            android:layout_weight="5"
             android:background="@color/white"
             android:orientation="vertical"
             android:overScrollMode="never" />

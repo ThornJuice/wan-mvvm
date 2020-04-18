@@ -3,19 +3,23 @@ package com.hzy.wan.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.widget.AbsListView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
+import com.hzy.baselib.base.BaseApp
 import com.hzy.baselib.base.BaseFragment
 import com.hzy.baselib.base.showToast
 import com.hzy.baselib.widget.TopSmoothScroller
 import com.hzy.baselib.base.jump
+import com.hzy.wan.App
 import com.hzy.wan.R
 import com.hzy.wan.activity.AgentWebView
 import com.hzy.wan.adapter.ClassfiyMenuTabAdapter
@@ -27,12 +31,14 @@ import com.zhy.view.flowlayout.TagFlowLayout
 import kotlinx.android.synthetic.main.fragment_navi.*
 import q.rorbin.verticaltablayout.VerticalTabLayout
 import q.rorbin.verticaltablayout.widget.TabView
+import java.text.FieldPosition
 
 class NaviFragment : BaseFragment() {
     private val adapter: MyAdapter by lazy { MyAdapter(null) }
+    private val leftAdapter: AdapterLeft by lazy { AdapterLeft(null) }
     private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var scroller: TopSmoothScroller
     lateinit var mViewModel: NaviViewModel
-    private var selectedPosition = 0
     override fun getLayoutId(): Int {
         return R.layout.fragment_navi
     }
@@ -47,15 +53,19 @@ class NaviFragment : BaseFragment() {
 
     override fun initData() {
         title_bar.setPageTitle("导航")
-        layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        recyclerView.layoutManager = layoutManager
+        scroller = TopSmoothScroller(context);
+        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = adapter
+        recyclerViewLeft.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        recyclerViewLeft.adapter = leftAdapter
+
         mViewModel = ViewModelProvider(this)[NaviViewModel::class.java]
         mViewModel?.apply {
             this.getData()
             this.naviLiveData.observe(viewLifecycleOwner, Observer {
                 it.showSuccess?.run {
                     bindTabAndPager(this.data)
+                    leftAdapter.setNewData(this.data)
                     adapter.setNewData(this.data)
                 }
                 it.showError?.run {
@@ -63,34 +73,24 @@ class NaviFragment : BaseFragment() {
                 }
             })
         }
+
+        leftAdapter.setOnItemClickListener { adapter, view, position ->
+            leftAdapter.setSelected(position)
+            scroller.targetPosition = position
+            recyclerView.layoutManager?.startSmoothScroll(scroller)
+        }
     }
 
     private fun bindTabAndPager(list: List<NaviBean.DataBean>?) {
-        val scroller = TopSmoothScroller(context);
-        val classfiyMenuTabAdapter = ClassfiyMenuTabAdapter(list)
-        tabLayout.setTabAdapter(classfiyMenuTabAdapter)
-
-        tabLayout.addOnTabSelectedListener(object : VerticalTabLayout.OnTabSelectedListener {
-            override fun onTabReselected(tab: TabView?, position: Int) {
-            }
-
-            override fun onTabSelected(tab: TabView?, position: Int) {
-                // recyclerView.smoothScrollToPosition(position)
-                scroller.targetPosition = position
-                recyclerView.layoutManager?.startSmoothScroll(scroller)
-            }
-
-        })
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
+
                 when (newState) {
                     AbsListView.OnScrollListener.SCROLL_STATE_IDLE -> {
-                        val position = layoutManager.findFirstVisibleItemPosition()
-                        if (selectedPosition != position) {
-                            tabLayout.setTabSelected(position)
-                            selectedPosition = position
-                        }
+                        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        recyclerViewLeft.smoothScrollToPosition(position)
+                        leftAdapter.setSelected(position)
                     }
                 }
             }
@@ -123,6 +123,25 @@ class NaviFragment : BaseFragment() {
                     true
                 }
             }
+        }
+    }
+
+    class AdapterLeft(var list: List<NaviBean.DataBean>?) :
+            BaseQuickAdapter<NaviBean.DataBean, BaseViewHolder>(R.layout.item_simple_text, list) {
+        var position: Int = 0
+        override fun convert(helper: BaseViewHolder?, item: NaviBean.DataBean) {
+            helper?.setText(R.id.tv_title, item.name)
+            var p = helper?.layoutPosition
+            if (position == p) {
+                helper?.setTextColor(R.id.tv_title, ContextCompat.getColor(BaseApp.instance, R.color.colorPrimary))
+            } else {
+                helper?.setTextColor(R.id.tv_title, ContextCompat.getColor(BaseApp.instance, R.color.black_text))
+            }
+        }
+
+        fun setSelected(position: Int) {
+            this.position = position
+            notifyDataSetChanged()
         }
     }
 }
