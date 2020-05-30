@@ -7,6 +7,6 @@ public class App extends BaseApp {
     @Override
     public void onCreate() {
         super.onCreate();
-        LeakCanary.install(this);
+        //LeakCanary.install(this);
     }
 }
