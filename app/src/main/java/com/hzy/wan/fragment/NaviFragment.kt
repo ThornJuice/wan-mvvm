@@ -3,7 +3,6 @@ package com.hzy.wan.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.widget.AbsListView
 import android.widget.TextView
@@ -16,28 +15,21 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.hzy.baselib.base.BaseApp
 import com.hzy.baselib.base.BaseFragment
-import com.hzy.baselib.base.showToast
-import com.hzy.baselib.widget.TopSmoothScroller
 import com.hzy.baselib.base.jump
-import com.hzy.wan.App
+import com.hzy.baselib.base.showToast
 import com.hzy.wan.R
 import com.hzy.wan.activity.AgentWebView
-import com.hzy.wan.adapter.ClassfiyMenuTabAdapter
 import com.hzy.wan.bean.NaviBean
 import com.hzy.wan.viewmodel.NaviViewModel
 import com.zhy.view.flowlayout.FlowLayout
 import com.zhy.view.flowlayout.TagAdapter
 import com.zhy.view.flowlayout.TagFlowLayout
 import kotlinx.android.synthetic.main.fragment_navi.*
-import q.rorbin.verticaltablayout.VerticalTabLayout
-import q.rorbin.verticaltablayout.widget.TabView
-import java.text.FieldPosition
 
 class NaviFragment : BaseFragment() {
     private val adapter: MyAdapter by lazy { MyAdapter(null) }
     private val leftAdapter: AdapterLeft by lazy { AdapterLeft(null) }
     private lateinit var layoutManager: LinearLayoutManager
-    private lateinit var scroller: TopSmoothScroller
     lateinit var mViewModel: NaviViewModel
     override fun getLayoutId(): Int {
         return R.layout.fragment_navi
@@ -53,7 +45,6 @@ class NaviFragment : BaseFragment() {
 
     override fun initData() {
         title_bar.setPageTitle("导航")
-        scroller = TopSmoothScroller(context);
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = adapter
         recyclerViewLeft.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -76,8 +67,8 @@ class NaviFragment : BaseFragment() {
 
         leftAdapter.setOnItemClickListener { adapter, view, position ->
             leftAdapter.setSelected(position)
-            scroller.targetPosition = position
-            recyclerView.layoutManager?.startSmoothScroll(scroller)
+           // scroller.targetPosition = position
+           // recyclerView.layoutManager?.startSmoothScroll(scroller)
         }
     }
 
